@@ -14,7 +14,7 @@ console.log(`Find Index for Condition:${myNumbers.findIndex(x=>x>20)}`);
 
 console.log(`Find Value for Condition from Last:${myNumbers.findLast(x=>x>20)}`);
 
-console.log(`Find Value for Condition from Last:${myNumbers.findLastIndex(x=>x>20)}`);
+console.log(`Find Index for Condition from Last:${myNumbers.findLastIndex(x=>x>20)}`);
 
 
 
