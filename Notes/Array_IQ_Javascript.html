@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arrays in JavaScript</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 20px;
+      color: #222;
+    }
+    h1, h2 {
+      color: #1f4e79;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Arrays in JavaScript</h1>
+
+  <h2>1. What is an Array?</h2>
+  <p>An array is a special variable that can store multiple values in one variable.</p>
+  <pre><code>let fruits = ["apple", "banana", "mango"];</code></pre>
+
+  <h2>2. Ways to Declare an Array</h2>
+  <h3>Array Literal</h3>
+  <pre><code>let numbers = [10, 20, 30];</code></pre>
+
+  <h3>Using new Array()</h3>
+  <pre><code>let numbers = new Array(10, 20, 30);</code></pre>
+
+  <h3>Empty Array</h3>
+  <pre><code>let emptyArray = [];</code></pre>
+
+  <h2>3. Array Declaration Used in Real-Time Projects</h2>
+  <p>Arrays are commonly used for user lists, products, API responses, and form values.</p>
+  <pre><code>let users = [
+  { id: 1, name: "John" },
+  { id: 2, name: "Alice" }
+];</code></pre>
+
+  <h2>4. Accessing Array Elements</h2>
+  <pre><code>let fruits = ["apple", "banana", "mango"];
+console.log(fruits[0]);
+console.log(fruits[2]);</code></pre>
+
+  <h2>5. Modifying Array Elements</h2>
+  <pre><code>let fruits = ["apple", "banana", "mango"];
+fruits[1] = "orange";
+console.log(fruits);</code></pre>
+
+  <h2>6. Common Array Methods</h2>
+  <ul>
+    <li><code>push()</code> - add to the end</li>
+    <li><code>pop()</code> - remove from the end</li>
+    <li><code>shift()</code> - remove from the beginning</li>
+    <li><code>unshift()</code> - add to the beginning</li>
+    <li><code>indexOf()</code> - find index of an element</li>
+    <li><code>includes()</code> - check if an element exists</li>
+    <li><code>splice()</code> - add or remove elements</li>
+    <li><code>slice()</code> - copy a part of the array</li>
+    <li><code>join()</code> - convert to string</li>
+  </ul>
+
+  <h2>7. Example</h2>
+  <pre><code>let fruits = ["apple", "banana", "mango"];
+fruits.push("orange");
+console.log(fruits);</code></pre>
+
+  <h2>8. Quick Summary</h2>
+  <p>Arrays store multiple values, are indexed from 0, and are widely used in real-time web development.</p>
+</body>
+</html>
