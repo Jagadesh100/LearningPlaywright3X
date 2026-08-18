@@ -30,7 +30,7 @@ console.log(`Replace: ${results.replaceAll("FAIL","FAILURE")}`); // replaces all
 console.log(`+ Operator: ${results+wishes}`);
 console.log(`concat function: ${results.concat(wishes)}`);
 
-// Split
+// Split - string to array
 // splits full string to individual strings based on seperator
 
 let browser = "Chrome,Firefox,Edge,InterNetExplorer";

@@ -25,3 +25,7 @@ console.log(url.indexOf("g"));
 // lastIndex Of
 console.log(url.lastIndexOf("g"));
 
+/**Use includes for a simple yes/no
+Use startsWith / endsWith to validate URLs or file names
+Use indexOf when you need the exact position
+ */
