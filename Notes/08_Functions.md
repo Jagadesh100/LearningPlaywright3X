@@ -50,6 +50,29 @@ console.log(getName("Get Name")); // Get Name
 | Yes        | No          | `function printTestName(name) { console.log(name); }` |
 | Yes        | Yes         | `function getName(name) { return name; }` |
 
+### Function Call Flowchart
+
+```
+                 ┌──────────────────────────────────────────┐
+                 │  Call site: getName("Get Name")          │
+                 └───────────────────┬──────────────────────┘
+                                     ▼
+                 ┌──────────────────────────────────────────┐
+                 │  Arguments bind to parameters            │
+                 │  "Get Name" → name                       │
+                 └───────────────────┬──────────────────────┘
+                                     ▼
+                 ┌──────────────────────────────────────────┐
+                 │  Execute function body                   │
+                 │  return name;  → "Get Name"              │
+                 └───────────────────┬──────────────────────┘
+                                     ▼
+                 ┌──────────────────────────────────────────┐
+                 │  Return value replaces the call          │
+                 │  console.log("Get Name")                 │
+                 └──────────────────────────────────────────┘
+```
+
 ---
 
 ## Function Definition - 3 Ways
@@ -360,6 +383,40 @@ console.log(counter.get()); // 2
 - `count` is **private** - no code outside `makeCounter` can touch it directly.
 - The returned object methods "close over" `count` and keep it alive.
 - Great for encapsulating state in test utilities.
+
+### Closure Execution Flowchart
+
+```
+                 ┌────────────────────────────────────────────┐
+                 │  makeCounter(0) is called                  │
+                 └───────────────────┬────────────────────────┘
+                                     ▼
+                 ┌────────────────────────────────────────────┐
+                 │  local `count = 0` is created              │
+                 │  (this variable is "closed over")          │
+                 └───────────────────┬────────────────────────┘
+                                     ▼
+                 ┌────────────────────────────────────────────┐
+                 │  returns { increment, decrement, get }     │
+                 │  object - the methods keep a reference     │
+                 │  back to `count`                           │
+                 └───────────────────┬────────────────────────┘
+                                     ▼
+                 ┌────────────────────────────────────────────┐
+                 │  makeCounter has RETURNED... but `count`   │
+                 │  is still alive (closure)                  │
+                 └───────────────────┬────────────────────────┘
+                                     ▼
+                 ┌────────────────────────────────────────────┐
+                 │  counter.increment()  → count 0 → 1        │
+                 │  counter.increment()  → count 1 → 2        │
+                 │  counter.increment()  → count 2 → 3        │
+                 │  counter.get()        → 3                  │
+                 └────────────────────────────────────────────┘
+
+  KEY: the outer function "closes over" its local variables.
+  Even after it returns, the returned functions can still access them.
+```
 
 ---
 

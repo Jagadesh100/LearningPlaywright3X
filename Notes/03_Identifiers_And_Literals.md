@@ -43,6 +43,36 @@ var தமிழ் = 10;   // Tamil letters are valid identifiers
 - Identifiers are **case sensitive**.
 - Unicode characters are allowed.
 
+### Identifier Validation Flowchart
+
+```
+                  ┌────────────────────────────────┐
+                  │  Candidate identifier (e.g.    │
+                  │  myVar, 1ad, ab db, if, ABC)   │
+                  └───────────────┬────────────────┘
+                                  ▼
+                 ┌─────────────────────────────────┐
+                 │  Starts with letter, _ or $?    │─── No ──► ❌ INVALID
+                 └───────────────┬─────────────────┘         (1ad fails)
+                                  │ Yes
+                                  ▼
+                 ┌─────────────────────────────────┐
+                 │  Contains only letters, digits, │─── No ──► ❌ INVALID
+                 │  _, $ (no spaces/special chars)?│         (ab db fails)
+                 └───────────────┬─────────────────┘
+                                  │ Yes
+                                  ▼
+                 ┌─────────────────────────────────┐
+                 │  Not a reserved keyword?        │─── No ──► ❌ INVALID
+                 └───────────────┬─────────────────┘         (if fails)
+                                  │ Yes
+                                  ▼
+                 ┌─────────────────────────────────┐
+                 │  ✅ VALID identifier            │
+                 │  (case-sensitive: ABC ≠ abc)    │
+                 └─────────────────────────────────┘
+```
+
 ## Literals
 
 > Literals are values which represent actual data - fixed values written in the code.

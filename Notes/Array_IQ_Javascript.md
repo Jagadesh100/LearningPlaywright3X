@@ -207,6 +207,28 @@ let numbers = [30, 10, 20];
 console.log(numbers.sort()); // [10, 20, 30]
 ```
 
+### Array Method Selection Flowchart
+
+```
+                   ┌───────────────────────────────────────────┐
+                   │  What do you want to do with the array?   │
+                   └───────────────────┬───────────────────────┘
+        ┌──────────────────────────────┼──────────────────────────────┐
+        ▼                              ▼                              ▼
+ ┌──────────────────┐       ┌────────────────────┐       ┌────────────────────┐
+ │ add / remove     │       │ search / check     │       │ transform / copy   │
+ │ elements?        │       │ element?           │       │ array?             │
+ └────────┬─────────┘       └─────────┬──────────┘       └─────────┬──────────┘
+          ▼                          ▼                             ▼
+ ┌──────────────────┐       ┌────────────────────┐       ┌────────────────────┐
+ │ END: push/pop    │       │ exists? → includes │       │ each element → map │
+ │ START:           │       │ index?   → indexOf │       │ keep match → filter│
+ │   unshift/shift  │       │ first?   → find    │       │ to one val→ reduce │
+ │ anywhere: splice │       │ last?    → findLast│       │ part copy → slice  │
+ └──────────────────┘       └────────────────────┘       │ join all  → join   │
+                                                         └────────────────────┘
+```
+
 ---
 
 ## 8. Iterating Over an Array

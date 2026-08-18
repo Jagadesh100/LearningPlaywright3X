@@ -114,6 +114,28 @@ let greet2 = function () {
 | Function declaration | Yes (full)| Yes         | Callable normally              |
 | Function expression (`let`/`const`) | Yes (name only) | No (TDZ) | `ReferenceError` |
 
+### Hoisting Decision Flowchart
+
+```
+                    ┌───────────────────────────────────────┐
+                    │  What is being declared?              │
+                    └───────────────────┬───────────────────┘
+        ┌──────────────────────────────┼──────────────────────────────┐
+        ▼                              ▼                              ▼
+ ┌───────────────┐        ┌───────────────────────┐        ┌───────────────────────┐
+ │ var           │        │ let / const           │        │ function declaration  │
+ │ hoisted +     │        │ hoisted but NOT       │        │ fully hoisted         │
+ │ initialized   │        │ initialized (TDZ)     │        │ (name + body)         │
+ │ to undefined  │        │                       │        │                       │
+ └───────┬───────┘        └───────────┬───────────┘        └───────────┬───────────┘
+         ▼                            ▼                                ▼
+ ┌───────────────┐        ┌───────────────────────┐        ┌───────────────────────┐
+ │ access before │        │ access before         │        │ call before           │
+ │ declaration   │        │ declaration           │        │ definition            │
+ │ → undefined   │        │ → ReferenceError      │        │ → works normally      │
+ └───────────────┘        └───────────────────────┘        └───────────────────────┘
+```
+
 ---
 
 ## 6. Code Examples from the Learning Directory

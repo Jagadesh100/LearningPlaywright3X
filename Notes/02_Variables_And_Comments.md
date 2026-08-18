@@ -59,6 +59,30 @@ const pie = 3.14;
 | `let`   | Yes      | No        | Block `{}` | ES6        |
 | `const` | No       | No        | Block `{}` | ES6        |
 
+### Which Keyword to Use? (Decision Flowchart)
+
+```
+                 ┌─────────────────────────────┐
+                 │  Declaring a variable?      │
+                 └──────────────┬──────────────┘
+                                ▼
+                 ┌─────────────────────────────┐
+                 │  Will the value change?     │
+                 └──────────────┬──────────────┘
+                    ┌───────────┴───────────┐
+                    ▼                       ▼
+        ┌───────────────────────┐  ┌───────────────────────┐
+        │  const — value is    │  │  let — value will     │
+        │  fixed (never        │  │  change over time     │
+        │  reassigned)         │  │                       │
+        └──────────────────────┘  └───────────────────────┘
+                                    (avoid var in modern code)
+```
+
+- **`const`** — the value must never be reassigned (default choice).
+- **`let`** — the value will be reassigned later.
+- **`var`** — legacy; function-scoped and allows redeclaration. Avoid in new code.
+
 ## Scope of `let`, `var`, and `const`
 
 **File:** `02_chapter_Javascript_Concepts/41_Scope_Of_Variables.js`
@@ -135,6 +159,32 @@ Outside: 10
 - Each scope can have its **own** `num` — inner scopes **shadow** outer ones.
 - The global `num` (10) is never touched by the function.
 - `const` cannot be *reassigned*, but a new `const` in a deeper block is a completely different variable.
+
+### Scope Shadowing Flowchart
+
+```
+               ┌──────────────────────────────────────────┐
+               │  GLOBAL SCOPE:  const num = 10          │
+               │  (visible everywhere)                   │
+               └───────────────────┬──────────────────────┘
+                                   │ entering function
+                                   ▼
+               ┌──────────────────────────────────────────┐
+               │  FUNCTION SCOPE:  const num = 20        │
+               │  (shadows global num → 10 hidden here)  │
+               └───────────────────┬──────────────────────┘
+                                   │ entering if block
+                                   ▼
+               ┌──────────────────────────────────────────┐
+               │  BLOCK SCOPE:  const num = 30           │
+               │  (shadows function num → 20 hidden here)│
+               └──────────────────────────────────────────┘
+
+  Lookup rule: JS walks INWARD → OUTWARD.
+  Inside the if-block, `num` = 30 (nearest scope wins).
+  Leaving the block → back to function `num` = 20.
+  Leaving the function → back to global `num` = 10.
+```
 
 ## Comments
 

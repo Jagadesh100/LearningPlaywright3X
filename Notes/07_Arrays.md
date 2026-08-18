@@ -155,6 +155,28 @@ let lowestScore = scores.reduce((acc, val) => (acc < val ? acc : val), scores[0]
 | `filter()`| Keep elements matching condition | new array | <= original |
 | `reduce()`| Reduce to a single value     | single value | -      |
 
+### map / filter / reduce Flowchart
+
+```
+                       ┌─────────────────────────────────────┐
+                       │  Source array: [46, 45, 65, 99]     │
+                       └───────────────────┬─────────────────┘
+                                           ▼
+                       ┌─────────────────────────────────────┐
+                       │  What do you need from the array?   │
+                       └───────────────────┬─────────────────┘
+        ┌──────────────────────────────────┼──────────────────────────────────┐
+        ▼                                  ▼                                  ▼
+ ┌──────────────────────┐   ┌──────────────────────────┐   ┌──────────────────────┐
+ │ map()                │   │ filter()                 │   │ reduce()             │
+ │ "transform each      │   │ "keep only matching"     │   │ "collapse to one"    │
+ │  element"            │   │                          │   │                      │
+ │ scores → Pass/Fail   │   │ keep scores > 60         │   │ acc → highest score  │
+ │                      │   │ → [65, 99]               │   │ → 99                 │
+ │ length: SAME         │   │ length: ≤ original       │   │ length: 1 value      │
+ └──────────────────────┘   └──────────────────────────┘   └──────────────────────┘
+```
+
 ## 7. Array Sorting
 
 **File:** `07_Chapter_Arrays/29_Array_Sorting.js`

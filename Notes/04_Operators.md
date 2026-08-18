@@ -67,6 +67,27 @@ console.log(5 != "5");   // false  -> 5 == "5" is true, so not-equal is false
 console.log(5 !== "5");  // true   -> types differ, strictly not equal
 ```
 
+### Loose vs Strict Equality Flowchart
+
+```
+             ┌──────────────────────────────────────┐
+             │  Compare: 7 == "7"  vs  7 === "7"   │
+             └───────────────────┬──────────────────┘
+                                 ▼
+             ┌──────────────────────────────────────┐
+             │  Which operator is being used?       │
+             └───────────────────┬──────────────────┘
+              ┌──────────────────┴──────────────────┐
+              ▼                                     ▼
+ ┌────────────────────────────┐      ┌────────────────────────────┐
+ │  == (loose)                │      │  === (strict)              │
+ │  Are values equal AFTER    │      │  Are values equal AND      │
+ │  type coercion?            │      │  same data type?           │
+ │  7 == "7" → 7 == 7 → true │      │  7 === "7" → type mismatch │
+ │                            │      │  → false                   │
+ └────────────────────────────┘      └────────────────────────────┘
+```
+
 ## 4. Increment and Decrement Operators
 
 **File:** `04_chapter_Operators/10_Increment_Decrement_Operator.js`
@@ -77,6 +98,28 @@ console.log(5 !== "5");  // true   -> types differ, strictly not equal
 | `++i`    | Pre-increment     | Increments first, then uses new value       |
 | `i--`    | Post-decrement    | Uses current value, then decrements         |
 | `--i`    | Pre-decrement     | Decrements first, then uses new value       |
+
+### Pre vs Post Increment Flowchart
+
+```
+              ┌────────────────────────────────────────┐
+              │  let i = 5;                            │
+              │  let a = i++;   vs   let b = ++i;      │
+              └───────────────────┬────────────────────┘
+                                  ▼
+              ┌────────────────────────────────────────┐
+              │  Where is the ++ relative to i?        │
+              └───────────────────┬────────────────────┘
+               ┌──────────────────┴──────────────────┐
+               ▼                                     ▼
+ ┌────────────────────────────┐      ┌────────────────────────────┐
+ │  i++ (post)                │      │  ++i (pre)                 │
+ │  1. give CURRENT value     │      │  1. increment i: i → 6     │
+ │     (5) to the expression  │      │  2. give the NEW value (6) │
+ │  2. THEN increment i → 6   │      │     to the expression      │
+ │  a = 5, i = 6              │      │  b = 6, i = 6              │
+ └────────────────────────────┘      └────────────────────────────┘
+```
 
 ```js
 // Exercise 1

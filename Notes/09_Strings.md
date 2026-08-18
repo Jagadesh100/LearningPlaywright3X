@@ -46,6 +46,28 @@ Other ways to convert: `myNumber + ""` or `` `${myNumber}` ``.
 
 **Mental model:** `toString()` = "ask the value to describe itself"; `String()` = "force-convert anything to a string, no questions asked."
 
+### String Conversion Decision Flowchart
+
+```
+                ┌───────────────────────────────────────────┐
+                │  Need to convert a value to a string?     │
+                └───────────────────┬───────────────────────┘
+                                    ▼
+                ┌───────────────────────────────────────────┐
+                │  Could the value be null / undefined?     │
+                └───────────────────┬───────────────────────┘
+                 ┌──────────────────┴──────────────────┐
+                 ▼                                     ▼
+ ┌─────────────────────────────┐      ┌─────────────────────────────┐
+ │ YES → use String(x)         │      │ NO → either works           │
+ │ String(null) → "null"       │      │ String(200)  → "200"        │
+ │ String(undefined) →         │      │ (200).toString() → "200"    │
+ │   "undefined"               │      │                             │
+ │ (safe, never throws)        │      │ Need a radix? Use           │
+ │                             │      │ .toString(2) → binary       │
+ └─────────────────────────────┘      └─────────────────────────────┘
+```
+
 ---
 
 ## String Properties
@@ -146,6 +168,28 @@ url.slice(-9, -2);  // "etry=tr"
 
 url.substring(0, 16); // same as slice for positive
 url.substring(-9);    // negative ignored → full string
+```
+
+### slice vs substring Decision Flowchart
+
+```
+                 ┌──────────────────────────────────────────┐
+                 │  Extract part of a string                │
+                 └───────────────────┬──────────────────────┘
+                                     ▼
+                 ┌──────────────────────────────────────────┐
+                 │  Do you need a NEGATIVE index?           │
+                 └───────────────────┬──────────────────────┘
+                  ┌──────────────────┴──────────────────┐
+                  ▼                                     ▼
+ ┌────────────────────────────┐      ┌────────────────────────────┐
+ │ YES → use slice()          │      │ NO → either works          │
+ │ slice(-9) → "etry=true"    │      │ slice(0, 16)               │
+ │ (negative counts from end) │      │ substring(0, 16)           │
+ │                            │      │ (same result for positive) │
+ └────────────────────────────┘      └────────────────────────────┘
+
+  Rule: slice supports negatives; substring treats them as 0.
 ```
 
 ---

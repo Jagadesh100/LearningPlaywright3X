@@ -73,6 +73,28 @@ console.log(a); // ...also changes a → { id: 2, empName: "Test" }
 
 **Mental model:** `a` and `b` are two labels on the same box. Changing the box via either label affects both. This is why copying objects naively is dangerous ("highly vulnerable when copying and modifying").
 
+### Call by Reference Flowchart
+
+```
+                ┌────────────────────────────────────────────┐
+                │  let a = { id: 1, empName: "Test" }        │
+                │  (object created in memory at address X)   │
+                └───────────────────┬────────────────────────┘
+                                    ▼
+                ┌────────────────────────────────────────────┐
+                │  let b = a;                                │
+                │  b copies the REFERENCE, not the object    │
+                │  a ──┐                                     │
+                │      ├──► { id: 1, empName: "Test" }       │
+                │  b ──┘     (address X)                     │
+                └───────────────────┬────────────────────────┘
+                                    ▼
+                ┌────────────────────────────────────────────┐
+                │  b.id = 2;  ← mutates the SHARED object    │
+                │  a.id is ALSO 2 (both point to address X)  │
+                └────────────────────────────────────────────┘
+```
+
 ---
 
 ## Object Methods
@@ -117,6 +139,37 @@ console.log(result.value); // 20
 ```
 
 **Key idea:** `return this` makes methods chainable - each call returns the object for the next call.
+
+### Method Chaining Flowchart
+
+```
+  calculator.add(5).subtract(3).multiply(10)
+
+  ┌─────────────────────────────┐
+  │ 1. add(5)                   │
+  │    this.value = 0 + 5 = 5   │
+  │    returns this (calculator)│
+  └──────────────┬──────────────┘
+                 ▼
+  ┌─────────────────────────────┐
+  │ 2. subtract(3)              │
+  │    this.value = 5 - 3 = 2   │
+  │    returns this (calculator)│
+  └──────────────┬──────────────┘
+                 ▼
+  ┌─────────────────────────────┐
+  │ 3. multiply(10)             │
+  │    this.value = 2 * 10 = 20 │
+  │    returns this             │
+  └──────────────┬──────────────┘
+                 ▼
+  ┌─────────────────────────────┐
+  │ result.value → 20           │
+  └─────────────────────────────┘
+
+  Without `return this`, the chain breaks after step 1
+  (undefined.add would throw).
+```
 
 ---
 
@@ -206,6 +259,30 @@ console.log(object4); // { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }
 **Gotcha:** when two spreads share a key, the **later** one wins. To keep `a: 256`, spread `object3` before `object1`:
 ```js
 let object4 = { ...object3, ...object2, ...object1 }; // a: 256
+```
+
+### Spread Merge Flowchart
+
+```
+  let object4 = { ...object1, ...object2, ...object3 }
+
+  ┌──────────────────────────────────────────────────┐
+  │ STEP 1: spread object1                           │
+  │ { a: 256, b: 2, c: 3 }                           │
+  └────────────────────────┬─────────────────────────┘
+                           ▼
+  ┌──────────────────────────────────────────────────┐
+  │ STEP 2: spread object2 (no key conflicts)        │
+  │ { a: 256, b: 2, c: 3, d: 4, e: 5, f: 6 }        │
+  └────────────────────────┬─────────────────────────┘
+                           ▼
+  ┌──────────────────────────────────────────────────┐
+  │ STEP 3: spread object3 (a, b, c CONFLICT)        │
+  │ object3.a = 1 OVERWRITES 256                     │
+  │ { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 }          │
+  └──────────────────────────────────────────────────┘
+
+  RULE: on duplicate keys, the LAST spread wins.
 ```
 
 ---
