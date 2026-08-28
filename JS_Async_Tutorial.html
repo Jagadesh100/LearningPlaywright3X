@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Async Tutorial — Callback, Promise, async/await</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #facc15;
+    --purple: #c084fc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    padding-bottom: 80px;
+  }
+  header {
+    padding: 48px 24px 32px;
+    text-align: center;
+    background: linear-gradient(180deg, #0b1120, #0f172a);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 2.4rem; color: var(--accent); }
+  header p { color: var(--muted); max-width: 720px; margin: 12px auto 0; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  .toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin: 32px 0;
+  }
+  .toc h2 { color: var(--accent); font-size: 1.1rem; margin-bottom: 12px; }
+  .toc ol { padding-left: 22px; }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 32px 0;
+    overflow: hidden;
+  }
+  .card > h2 {
+    padding: 16px 24px;
+    font-size: 1.35rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .badge.js { background: #facc151f; color: var(--yellow); border: 1px solid #facc1555; }
+  .badge.pw { background: #38bdf81f; color: var(--accent); border: 1px solid #38bdf855; }
+  .card-body { padding: 24px; }
+  .card-body p { margin-bottom: 14px; }
+  .card-body p:last-child { margin-bottom: 0; }
+  .card-body ul, .card-body ol { margin: 0 0 14px 22px; }
+  .card-body li { margin-bottom: 6px; }
+  .card-body code {
+    background: #0f172a;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.88em;
+    color: var(--accent);
+  }
+  .note {
+    background: #0f172a;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    font-size: 0.95rem;
+  }
+  .note.green { border-left-color: var(--green); }
+  .note.red { border-left-color: var(--red); }
+  .note.yellow { border-left-color: var(--yellow); }
+  .note strong { color: var(--text); }
+
+  .pre-wrap { position: relative; margin: 16px 0; }
+  pre {
+    background: #0b1120;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    overflow-x: auto;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  pre .kw { color: var(--purple); }
+  pre .fn { color: var(--accent); }
+  pre .str { color: var(--green); }
+  pre .num { color: var(--yellow); }
+  pre .cm { color: var(--muted); font-style: italic; }
+  pre .lit { color: var(--red); }
+
+  .run-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent);
+    color: #0b1120;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .pre-wrap:hover .run-btn { opacity: 1; }
+  .run-btn:active { transform: scale(0.96); }
+
+  .output {
+    background: #020617;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    display: none;
+    white-space: pre-wrap;
+    color: var(--green);
+  }
+  .output.error { color: var(--red); }
+  .output.visible { display: block; animation: fadeIn 0.25s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; } }
+
+  .flow {
+    background: #0b1120;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.8rem;
+    white-space: pre;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .flow .box { color: var(--text); }
+  .flow .arrow { color: var(--accent); }
+  .flow .hl { color: var(--green); font-weight: 700; }
+  .flow .hlr { color: var(--red); font-weight: 700; }
+  .flow .hly { color: var(--yellow); font-weight: 700; }
+
+  .comparison { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  .comparison th, .comparison td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .comparison th { background: var(--panel2); color: var(--accent); }
+  .comparison tr:nth-child(even) td { background: #16213a; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 48px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .playground {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0;
+  }
+  .playground h2 { color: var(--accent); margin-bottom: 12px; }
+  .playground textarea {
+    width: 100%;
+    min-height: 180px;
+    background: #0b1120;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+    margin-bottom: 12px;
+  }
+  .playground .run-btn-static {
+    background: var(--accent);
+    color: #0b1120;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .playground .run-btn-static:hover { background: #7dd3fc; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>JavaScript Async Tutorial</h1>
+  <p>Callback → Promise → async/await — the complete journey, with runnable examples and Playwright connections.</p>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>📚 Table of Contents</h2>
+    <ol>
+      <li><a href="#callback">Callback</a></li>
+      <li><a href="#new-promise">new Promise</a></li>
+      <li><a href="#async">async</a></li>
+      <li><a href="#await">await</a></li>
+      <li><a href="#promise-all">Promise.all</a></li>
+      <li><a href="#promise-race">Promise.race</a></li>
+      <li><a href="#playwright">Putting it all together in Playwright</a></li>
+      <li><a href="#comparison">Keyword comparison table</a></li>
+      <li><a href="#playground">Playground</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. CALLBACK -->
+  <section class="card" id="callback">
+    <h2>1️⃣ Callback <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> A function passed <em>as an argument</em> to another function, which calls it <em>later</em>. The receiving function decides <strong>when</strong> to invoke it.</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="cm">// Passing a function as an argument, called later</span>
+<span class="kw">function</span> <span class="fn">greeting</span>(greet, callback) {
+  <span class="fn">console.log</span>(<span class="str">"Hello"</span>);
+  callback();              <span class="cm">// ← the "later" part</span>
+}
+
+<span class="kw">function</span> <span class="fn">printName</span>() {
+  <span class="fn">console.log</span>(<span class="str">"UserName"</span>);
+}
+
+<span class="fn">greeting</span>(<span class="str">"Good"</span>, printName); <span class="cm">// pass the reference, NO parentheses</span></code></pre>
+        <div class="output"></div>
+      </div>
+
+      <div class="note">
+        <strong>Key rule:</strong> pass <code>printName</code> <em>without</em> parentheses. <code>printName()</code> would execute immediately and pass <code>undefined</code> instead.
+      </div>
+
+      <h3>Flow Diagram</h3>
+      <div class="flow"><span class="box">┌──────────────────────────────────────────────┐
+│ greeting("Good", printName)  →  CALL SITE    │
+│   "Good"     → greet    (string)             │
+│   printName  → callback (function ref)       │
+└──────────────────────┬───────────────────────┘
+                       │ call begins
+                       ▼
+┌──────────────────────────────────────────────┐
+│ function greeting(greet, callback)           │
+│   1. console.log("Hello")        → "Hello"   │
+│   2. callback() ◄── invokes printName        │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│ function printName()                         │
+│   3. console.log("UserName")     → "UserName"│
+└──────────────────────────────────────────────┘
+
+Output:  <span class="hl">Hello</span>
+         <span class="hl">UserName</span></span></div>
+
+      <h3>Why callbacks matter</h3>
+      <ul>
+        <li>They let you pass <strong>behavior</strong> into a function.</li>
+        <li>They are the foundation of all async code (setTimeout, event handlers, array methods).</li>
+        <li>Nesting too many callbacks creates <strong>Callback Hell / Pyramid of Doom</strong> — the problem Promises solve.</li>
+      </ul>
+
+      <div class="note yellow">
+        <strong>Playwright:</strong> <code>test("has title", async ({ page }) =&gt; {...})</code> — the arrow function is a <em>callback</em> that Playwright calls for you. Locator actions are callback-driven too.
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. NEW PROMISE -->
+  <section class="card" id="new-promise">
+    <h2>2️⃣ new Promise <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> A constructor that creates an object representing the <strong>eventual completion or failure</strong> of an async operation. It takes an <em>executor</em> function with two parameters: <code>resolve</code> and <code>reject</code>.</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">let</span> apiCall = <span class="kw">new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve, reject) {
+  <span class="cm">// pretend an API request happened...</span>
+  <span class="kw">let</span> success = <span class="lit">true</span>;
+  <span class="kw">if</span> (success) {
+    resolve({ status: <span class="num">200</span>, body: <span class="str">"User Data"</span> });  <span class="cm">// → fulfilled</span>
+  } <span class="kw">else</span> {
+    reject({ status: <span class="num">500</span> });                                <span class="cm">// → rejected</span>
+  }
+});
+
+apiCall
+  .then(<span class="kw">function</span> (res) { <span class="fn">console.log</span>(<span class="str">"OK:"</span>, res.status, res.body); })
+  .catch(<span class="kw">function</span> (err) { <span class="fn">console.log</span>(<span class="str">"Failed:"</span>, err.status); })
+  .finally(<span class="kw">function</span> () { <span class="fn">console.log</span>(<span class="str">"Cleanup always runs"</span>); });</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Promise Lifecycle</h3>
+      <div class="flow"><span class="box">┌─────────────────────────────────────────────┐
+│          new Promise(executor)               │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────┐
+│              <span class="hly">PENDING</span>  (work in progress)         │
+└──────────────────────┬───────────────────────┘
+               ┌───────┴────────┐
+               ▼                ▼
+┌─────────────────────┐  ┌─────────────────────┐
+│  resolve(value)     │  │  reject(reason)     │
+│  → <span class="hl">FULFILLED</span>           │  │  → <span class="hlr">REJECTED</span>          │
+│  .then() runs       │  │  .catch() runs      │
+└─────────────────────┘  └─────────────────────┘
+        └──────────┬──────────┘
+                   ▼
+┌─────────────────────────────────────────────┐
+│  .finally()  — ALWAYS runs (either path)    │
+└─────────────────────────────────────────────┘
+
+A promise settles <strong>ONCE</strong>. After fulfilled/rejected,
+it can never change state again.</span></div>
+
+      <div class="note red">
+        <strong>Warning:</strong> a rejected promise with <em>no</em> <code>.catch()</code> produces an <strong>unhandled promise rejection</strong> — your test can fail or the process can crash.
+      </div>
+
+      <h3>Three important behaviors</h3>
+      <ul>
+        <li><code>.then()</code> runs on <strong>resolve</strong>; <code>.catch()</code> runs on <strong>reject</strong>; <code>.finally()</code> always runs.</li>
+        <li>Returning a value from <code>.then()</code> passes it to the <em>next</em> <code>.then()</code> — this is chaining.</li>
+        <li>Returning a <em>promise</em> from <code>.then()</code> makes the next <code>.then()</code> <strong>wait</strong> for it — sequential async flow.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. ASYNC -->
+  <section class="card" id="async">
+    <h2>3️⃣ async <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> A keyword that marks a function as <strong>asynchronous</strong>. An <code>async</code> function <strong>always returns a Promise</strong> — even if you return a plain value, it gets wrapped.</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">async function</span> <span class="fn">getUser</span>() {
+  <span class="kw">return</span> <span class="str">"UserName"</span>;   <span class="cm">// plain value → wrapped in a resolved promise</span>
+}
+
+<span class="fn">console.log</span>(<span class="fn">getUser</span>());  <span class="cm">// Promise {&lt;fulfilled&gt;: "UserName"} — NOT the string</span>
+
+<span class="fn">getUser</span>().then(<span class="kw">function</span> (name) {
+  <span class="fn">console.log</span>(<span class="str">"Got:"</span>, name);  <span class="cm">// must use .then() or await to get the value</span>
+});</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <div class="note">
+        <strong>Rule:</strong> <code>async</code> functions always return a promise. To get the value, you need <code>.then()</code> or <code>await</code>. This is why <code>async () =&gt; {...}</code> is the standard shape of every Playwright test.
+      </div>
+
+      <h3>Flow Diagram</h3>
+      <div class="flow"><span class="box">┌──────────────────────────────────────────────┐
+│ async function getUser() {                   │
+│   return "UserName";                         │
+│ }                                           │
+└──────────────────────┬───────────────────────┘
+                       │ call getUser()
+                       ▼
+┌──────────────────────────────────────────────┐
+│  return value "UserName"                     │
+│        │                                     │
+│        └──► wrapped automatically            │
+│             into Promise.resolve("UserName") │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  Promise { &lt;fulfilled&gt;: "UserName" }        │
+│        │                                     │
+│        ├──► .then(name =&gt; ...)  gets value   │
+│        └──► await getUser()   gets value     │
+└──────────────────────────────────────────────┘</span></div>
+    </div>
+  </section>
+
+  <!-- 4. AWAIT -->
+  <section class="card" id="await">
+    <h2>4️⃣ await <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> A keyword that <strong>pauses</strong> execution of an <code>async</code> function until a promise settles, then resumes with the resolved value. It can only be used <em>inside</em> an <code>async</code> function.</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">function</span> <span class="fn">fetchData</span>() {
+  <span class="kw">return new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve) {
+    <span class="fn">setTimeout</span>(<span class="kw">function</span> () {
+      resolve(<span class="str">"API response"</span>);
+    }, <span class="num">1000</span>);   <span class="cm">// simulate 1s network delay</span>
+  });
+}
+
+<span class="kw">async function</span> <span class="fn">main</span>() {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"1. Calling API..."</span>);
+  <span class="kw">let</span> data = <span class="kw">await</span> <span class="fn">fetchData</span>();   <span class="cm">// ← pauses here ~1s</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"2. Got:"</span>, data);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"3. Done"</span>);
+}
+
+<span class="fn">main</span>();</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <div class="note yellow">
+        <strong>Common pitfall:</strong> forgetting <code>await</code> in Playwright (<code>page.click()</code> without <code>await</code>) — the action is scheduled but the test moves on before it finishes, causing flaky tests.
+      </div>
+
+      <h3>await vs .then()</h3>
+      <div class="flow"><span class="box">SAME result, TWO styles:
+
+┌── .then() style ─────────────────────────────┐
+│ fetchData().then(data =&gt; {                   │
+│   console.log(data);                        │
+│ });                                         │
+└─────────────────────────────────────────────┘
+
+┌── await style (inside async fn) ────────────┐
+│ let data = await fetchData();               │
+│ console.log(data);                          │
+└─────────────────────────────────────────────┘
+
+await = "pause here, then give me the value"
+.then = "call me back later with the value"
+
+Both are equivalent — await is just cleaner to read.</span></div>
+
+      <div class="note green">
+        <strong>Error handling:</strong> <code>await</code> + <code>try/catch</code> replaces <code>.catch()</code>:
+        <pre style="margin-top:10px;"><code><span class="kw">try</span> {
+  <span class="kw">let</span> data = <span class="kw">await</span> fetchData();
+} <span class="kw">catch</span> (err) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Failed:"</span>, err);
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. PROMISE.ALL -->
+  <section class="card" id="promise-all">
+    <h2>5️⃣ Promise.all <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> Takes an array of promises, runs them <strong>in parallel</strong>, and resolves with an array of ALL values — <em>only if every promise resolves</em>. If <strong>any</strong> rejects, it rejects immediately (<strong>fail-fast</strong>).</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">let</span> checkAuth   = <span class="fn">Promise</span>.resolve(<span class="str">"Auth Ok"</span>);
+<span class="kw">let</span> checkDB     = <span class="fn">Promise</span>.resolve(<span class="str">"DB Ok"</span>);
+<span class="kw">let</span> checkCache  = <span class="fn">Promise</span>.resolve(<span class="str">"Cache Cleared"</span>);
+
+<span class="fn">Promise</span>.<span class="fn">all</span>([checkAuth, checkDB, checkCache])
+  .then(<span class="kw">function</span> (results) {
+    <span class="fn">console</span>.<span class="fn">log</span>(results);   <span class="cm">// array, IN ORDER: ["Auth Ok","DB Ok","Cache Cleared"]</span>
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"All promises resolved"</span>);
+  })
+  .catch(<span class="kw">function</span> (err) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Failed:"</span>, err);
+  });</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Fail-fast behavior</h3>
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="fn">Promise</span>.<span class="fn">all</span>([
+  <span class="fn">Promise</span>.resolve(<span class="str">"OK"</span>),
+  <span class="fn">Promise</span>.reject(<span class="str">"DB DOWN"</span>),   <span class="cm">// ← this one breaks everything</span>
+  <span class="fn">Promise</span>.resolve(<span class="str">"OK"</span>),
+])
+  .then(<span class="kw">function</span> (r) { <span class="fn">console</span>.<span class="fn">log</span>(r); })          <span class="cm">// never runs</span>
+  .catch(<span class="kw">function</span> (err) { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Failed:"</span>, err); }); <span class="cm">// "Failed: DB DOWN"</span></code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Flow Diagram</h3>
+      <div class="flow"><span class="box">┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│ checkAuth   │  │ checkDB     │  │ checkCache  │
+│ (parallel)  │  │ (parallel)  │  │ (parallel)  │
+└──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+       └────────────────┼───────────────┘
+                        ▼
+       ┌────────────────────────────────┐
+       │  ALL resolved?                 │
+       └──────────────┬─────────────────┘
+              ┌───────┴───────┐
+              ▼               ▼
+  ┌────────────────────┐  ┌────────────────────┐
+  │ YES               │  │ NO — one rejected  │
+  │ .then(results)    │  │ .catch(err)        │
+  │ array of values   │  │ fail-fast          │
+  └────────────────────┘  └────────────────────┘</span></div>
+
+      <div class="note green">
+        <strong>Playwright:</strong> classic pattern — <code>await Promise.all([page.waitForNavigation(), page.click("a")])</code> to click a link <em>while</em> waiting for navigation.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PROMISE.RACE -->
+  <section class="card" id="promise-race">
+    <h2>6️⃣ Promise.race <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <p><strong>What is it?</strong> Takes an array of promises and settles with the <strong>first one to settle</strong> — win or lose. Like a real race: only the first finisher matters; the others are ignored.</p>
+
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">let</span> fastServer = <span class="kw">new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve) {
+  <span class="fn">setTimeout</span>(<span class="kw">function</span> () { resolve(<span class="str">"Fast 100ms"</span>); }, <span class="num">100</span>);
+});
+
+<span class="kw">let</span> slowServer = <span class="kw">new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve) {
+  <span class="fn">setTimeout</span>(<span class="kw">function</span> () { resolve(<span class="str">"Slow 500ms"</span>); }, <span class="num">500</span>);
+});
+
+<span class="fn">Promise</span>.<span class="fn">race</span>([fastServer, slowServer]).then(<span class="kw">function</span> (winner) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Winner:"</span>, winner);  <span class="cm">// "Winner: Fast 100ms" (at ~100ms)</span>
+});</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Flow Diagram</h3>
+      <div class="flow"><span class="box">t=0ms   fastServer starts ──┐
+        slowServer starts ──┼──► RACE
+                            │
+t=100ms fastServer wins ────┘
+                            │
+                            ▼
+          .then(winner) → "Winner: Fast 100ms"
+          (slowServer's result at t=500ms is IGNORED)</span></div>
+
+      <div class="note">
+        <strong>Real use case — timeouts:</strong>
+        <pre style="margin-top:10px;"><code><span class="kw">let</span> withTimeout = <span class="fn">Promise</span>.<span class="fn">race</span>([
+  apiCall,                                     <span class="cm">// real request</span>
+  <span class="kw">new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (_, reject) {
+    <span class="fn">setTimeout</span>(() =&gt; reject(<span class="str">"Timeout!"</span>), <span class="num">5000</span>);
+  }),
+]);  <span class="cm">// if the timeout rejects first → race rejects</span></code></pre>
+      </div>
+
+      <div class="note red">
+        <strong>Gotcha:</strong> <code>race</code> settles on the first <em>settlement</em> — if the first finisher <em>rejects</em>, the race rejects. Use <code>Promise.any</code> if you want the first <em>success</em> only.
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. PLAYWRIGHT -->
+  <section class="card" id="playwright">
+    <h2>7️⃣ All Together — Playwright <span class="badge pw">PLAYWRIGHT</span></h2>
+    <div class="card-body">
+      <p>The real E2E login flow — from Callback Hell (Chapter 12) to a clean promise chain (Chapter 13) to <code>async</code>/<code>await</code> (what Playwright actually uses).</p>
+
+      <h3>Version 1 — Callback Hell</h3>
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">function</span> <span class="fn">openBrowser</span>(callback) {
+  <span class="fn">setTimeout</span>(<span class="kw">function</span> () {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Step 1 - browser starting..."</span>);
+    callback();
+  }, <span class="num">500</span>);
+}
+<span class="kw">function</span> <span class="fn">clickLogin</span>(callback) {
+  <span class="fn">setTimeout</span>(<span class="kw">function</span> () {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Step 2 - login clicked"</span>);
+    callback();
+  }, <span class="num">500</span>);
+}
+
+<span class="cm">// Nesting grows to the right — hard to read 😵</span>
+<span class="fn">openBrowser</span>(<span class="kw">function</span> () {
+  <span class="fn">clickLogin</span>(<span class="kw">function</span> () {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Test Complete!"</span>);
+  });
+});</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Version 2 — Promise chain (flat!)</h3>
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="kw">function</span> <span class="fn">openBrowser</span>() {
+  <span class="kw">return new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve) {
+    <span class="fn">setTimeout</span>(() =&gt; resolve(<span class="str">"browser opened"</span>), <span class="num">500</span>);
+  });
+}
+<span class="kw">function</span> <span class="fn">clickLogin</span>() {
+  <span class="kw">return new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (resolve) {
+    <span class="fn">setTimeout</span>(() =&gt; resolve(<span class="str">"login clicked"</span>), <span class="num">500</span>);
+  });
+}
+
+<span class="cm">// Returning a promise chains the steps in order ✅</span>
+<span class="fn">openBrowser</span>()
+  .then(<span class="kw">function</span> (msg) { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Step 1:"</span>, msg); <span class="kw">return</span> <span class="fn">clickLogin</span>(); })
+  .then(<span class="kw">function</span> (msg) { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Step 2:"</span>, msg); })
+  .catch(<span class="kw">function</span> (err) { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Error:"</span>, err); })
+  .finally(<span class="kw">function</span> () { <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Cleanup done"</span>); });</code></pre>
+        <div class="output"></div>
+      </div>
+
+      <h3>Version 3 — async/await (what Playwright uses)</h3>
+      <div class="pre-wrap">
+        <button class="run-btn" data-run>▶ Run</button>
+<pre><code><span class="cm">// Every Playwright test is an async arrow callback:</span>
+<span class="cm">// test("login works", async ({ page }) =&gt; { ... })</span>
+
+<span class="kw">async function</span> <span class="fn">loginFlow</span>() {
+  <span class="kw">await</span> <span class="fn">openBrowser</span>();      <span class="cm">// pause until resolved</span>
+  <span class="kw">await</span> <span class="fn">clickLogin</span>();
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Login flow complete!"</span>);
+}
+
+<span class="fn">loginFlow</span>().catch(<span class="kw">function</span> (err) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">"Test failed:"</span>, err);
+});</code></pre>
+        <div class="output"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. COMPARISON -->
+  <section class="card" id="comparison">
+    <h2>8️⃣ Keyword Comparison <span class="badge js">JS</span></h2>
+    <div class="card-body">
+      <table class="comparison">
+        <tr>
+          <th>Keyword</th>
+          <th>What it does</th>
+          <th>Returns</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td><code>Callback</code></td>
+          <td>Function passed as an argument, called later</td>
+          <td>whatever the outer function returns</td>
+          <td><code>setTimeout(fn, 1000)</code></td>
+        </tr>
+        <tr>
+          <td><code>new Promise</code></td>
+          <td>Creates an async operation with resolve/reject</td>
+          <td>a Promise (pending → fulfilled/rejected)</td>
+          <td><code>new Promise((res, rej) =&gt; ...)</code></td>
+        </tr>
+        <tr>
+          <td><code>async</code></td>
+          <td>Marks a function as asynchronous</td>
+          <td><strong>always a Promise</strong></td>
+          <td><code>async function f() {}</code></td>
+        </tr>
+        <tr>
+          <td><code>await</code></td>
+          <td>Pauses an async function until a promise settles</td>
+          <td>the resolved value</td>
+          <td><code>let data = await api()</code></td>
+        </tr>
+        <tr>
+          <td><code>Promise.all</code></td>
+          <td>Runs promises in parallel; waits for all (fail-fast)</td>
+          <td>array of all values (in order)</td>
+          <td><code>await Promise.all([a, b])</code></td>
+        </tr>
+        <tr>
+          <td><code>Promise.race</code></td>
+          <td>Settles with the FIRST promise to settle</td>
+          <td>value/reason of the first finisher</td>
+          <td><code>Promise.race([api, timeout])</code></td>
+        </tr>
+      </table>
+
+      <div class="note">
+        <strong>Quick mental model:</strong>
+        <ul style="margin-top:8px;">
+          <li><code>Callback</code> — "I'll call you back later"</li>
+          <li><code>new Promise</code> — "I promise a result later (good or bad)"</li>
+          <li><code>async</code> — "this function deals with promises"</li>
+          <li><code>await</code> — "wait right here for the result"</li>
+          <li><code>Promise.all</code> — "wait for everyone"</li>
+          <li><code>Promise.race</code> — "wait for the fastest"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. PLAYGROUND -->
+  <section class="playground" id="playground">
+    <h2>🧪 Playground — Try it yourself</h2>
+    <p style="color: var(--muted); margin-bottom: 12px;">Edit the code and run it. Experiment with all 6 keywords!</p>
+    <textarea id="code" spellcheck="false">// Try editing this code and click Run!
+async function demo() {
+  const msg = await new Promise((resolve) => {
+    setTimeout(() => resolve("Hello from await!"), 500);
+  });
+  console.log(msg);
+
+  const results = await Promise.all([
+    Promise.resolve("A"),
+    Promise.resolve("B"),
+    Promise.resolve("C"),
+  ]);
+  console.log("Promise.all:", results);
+
+  const winner = await Promise.race([
+    new Promise((r) => setTimeout(() => r("fast"), 300)),
+    new Promise((r) => setTimeout(() => r("slow"), 1000)),
+  ]);
+  console.log("Promise.race winner:", winner);
+}
+
+demo();</textarea>
+    <button class="run-btn-static" id="runPlayground">▶ Run Code</button>
+    <div class="output" id="playgroundOutput"></div>
+  </section>
+
+  <footer>
+    Built for the LearningPlaywright3X journey — Chapters 12 &amp; 13 · Callback → Promise → async/await
+  </footer>
+
+</div>
+
+<script>
+// Simple syntax highlighter for the playground output area is not needed;
+// instead, all static examples are highlighted at author time in HTML.
+
+// Run buttons: capture console.log calls and show them in the matching output box.
+document.querySelectorAll("[data-run]").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var pre = btn.parentElement.querySelector("pre");
+    var output = btn.parentElement.querySelector(".output");
+    runInSandbox(pre.textContent, output);
+  });
+});
+
+function runInSandbox(code, outputEl) {
+  var logs = [];
+  var fakeConsole = {
+    log: function () {
+      logs.push(Array.prototype.slice.call(arguments).map(formatValue).join(" "));
+    },
+    error: function () {
+      logs.push("❌ " + Array.prototype.slice.call(arguments).map(formatValue).join(" "));
+    },
+    warn: function () {
+      logs.push("⚠️ " + Array.prototype.slice.call(arguments).map(formatValue).join(" "));
+    },
+  };
+
+  function formatValue(v) {
+    if (v === undefined) return "undefined";
+    if (v === null) return "null";
+    if (typeof v === "string") return v;
+    if (typeof v === "object") {
+      try { return JSON.stringify(v); } catch (e) { return String(v); }
+    }
+    return String(v);
+  }
+
+  outputEl.classList.remove("error");
+  outputEl.classList.remove("visible");
+
+  try {
+    // Build a sandboxed function that receives our fake console
+    var fn = new Function("console", '"use strict";\n' + code);
+    fn(fakeConsole);
+    // Wait a tick so synchronous setTimeout callbacks inside promises can flush
+    setTimeout(function () {
+      if (logs.length === 0) {
+        logs.push("(no console output — code ran without logging)");
+      }
+      outputEl.textContent = logs.join("\n");
+      outputEl.classList.add("visible");
+    }, 300);
+  } catch (err) {
+    outputEl.textContent = "❌ " + (err && err.message ? err.message : err);
+    outputEl.classList.add("error");
+    outputEl.classList.add("visible");
+  }
+}
+
+// Playground
+document.getElementById("runPlayground").addEventListener("click", function () {
+  var code = document.getElementById("code").value;
+  var output = document.getElementById("playgroundOutput");
+  runInSandbox(code, output);
+});
+</script>
+
+</body>
+</html>
