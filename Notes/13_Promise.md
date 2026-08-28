@@ -579,6 +579,31 @@ openBrowser()
 
 ## Promise Combinators Comparison
 
+### Side-by-Side Difference Table
+
+| | `Promise.all` | `Promise.allSettled` | `Promise.race` |
+|---|---|---|---|
+| **Waits for** | ALL promises | ALL promises | FIRST promise to settle |
+| **Runs promises** | Parallel | Parallel | Parallel |
+| **Fails when** | ANY rejects (fail-fast) | Never fails | First one to settle rejects |
+| **`.then()` receives** | Array of all values (in order) | Array of `{status, value/reason}` for each | Single value/reason of the first finisher |
+| **Rejection behavior** | Stops immediately, ignores remaining results | Records the rejection, keeps waiting for the rest | Ignores all other promises |
+| **Result shape** | `["v1", "v2", "v3"]` | `[{status: "fulfilled", value}, {status: "rejected", reason}]` | `"v1"` (or reason) |
+| **QA analogy** | All pre-test checks must pass | Full test report - collect everything | API timeout - first outcome wins |
+| **Memory trick** | All must **pass** | All must **report** | First to **finish** |
+
+### Same Input - Different Output
+
+Given: `P1` resolves, `P2` rejects, `P3` resolves
+
+| Combinator | Output | Why |
+|---|---|---|
+| `Promise.all` | `.catch()` → `Failed: P2's reason` | One failure = total failure |
+| `Promise.allSettled` | 3 results - fulfilled, rejected, fulfilled | Every promise is reported |
+| `Promise.race` | `P1`'s value | First to settle wins, rest ignored |
+
+### Quick Reference
+
 | Method | Waits for | Fails when | Result of `.then()` |
 |---|---|---|---|
 | `Promise.all` | ALL promises | ANY rejects (fail-fast) | Array of all values (in order) |

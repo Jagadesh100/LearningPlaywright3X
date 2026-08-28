@@ -166,6 +166,145 @@ runTest("Login Test", function (name, result) {...})
 
 ---
 
+## Synchronous Callback
+
+A **synchronous callback** runs **immediately**, right where it was called - before the outer function returns. No waiting, no queue, fully blocking.
+
+**File:** `12_chapter_Callback/85_Synchronous_Callback.js`
+
+```js
+function processOrder(order, callback) {
+    console.log("Processing order: " + order);
+    callback(order); // runs right here - blocks until done
+    console.log("Order processed");
+}
+
+processOrder("ORD-1001", function (order) {
+    console.log("Callback executed for " + order);
+});
+
+// Output (in exact order):
+// Processing order: ORD-1001
+// Callback executed for ORD-1001
+// Order processed
+```
+
+### Execution Flow
+
+```
+processOrder("ORD-1001", cb)
+  ┌────────────────────────────┐
+  │ 1. "Processing order:..."  │
+  │ 2. callback()  ← runs NOW  │
+  │ 3. "Order processed"       │
+  └────────────────────────────┘
+          │ callback is called
+          ▼ synchronously
+  ┌────────────────────────────┐
+  │ cb: "Callback executed..." │
+  └────────────────────────────┘
+```
+
+| Step | What happens | Output |
+|---|---|---|
+| 1 | `console.log("Processing order...")` | Processing order: ORD-1001 |
+| 2 | `callback(order)` - called immediately | - |
+| 3 | Callback logs its message | Callback executed for ORD-1001 |
+| 4 | Back in `processOrder`, final log | Order processed |
+
+**Key points:**
+- The callback is invoked **inside** the outer function, in the same call stack - no waiting.
+- Execution order is fully predictable: outer function code → callback → rest of outer function.
+- Common examples: `array.forEach()`, `array.map()`, `array.filter()` - all run callbacks synchronously.
+
+---
+
+## Asynchronous Callback
+
+An **asynchronous callback** runs **later** - after the current code finishes, when the async task completes. `setTimeout`, `setInterval`, event listeners, and API calls all work this way.
+
+**File:** `12_chapter_Callback/86_Asynchronous_Callback.js`
+
+```js
+function processOrder(order, callback) {
+    console.log("Processing order: " + order);
+    setTimeout(function () {
+        callback(order); // runs later, after this function returns
+    }, 2000);
+    console.log("Order processed"); // this line runs FIRST!
+}
+
+processOrder("ORD-1001", function (order) {
+    console.log("Callback executed for " + order);
+});
+
+// Output:
+// Processing order: ORD-1001
+// Order processed          ← printed immediately
+// Callback executed for ORD-1001  ← printed after 2 seconds
+```
+
+### Execution Flow
+
+```
+processOrder("ORD-1001", cb)
+  ┌─────────────────────────────┐
+  │ 1. "Processing order:..."   │
+  │ 2. setTimeout(cb, 2000)     │
+  │    └── timer registered,    │
+  │        NOT executed         │
+  │ 3. "Order processed"        │
+  └─────────────────────────────┘
+         │ function returns,
+         │ timer keeps counting
+         ▼ 2 seconds later
+  ┌─────────────────────────────┐
+  │ cb: "Callback executed..."  │
+  │ ← pushed to the call stack  │
+  │   from the callback queue   │
+  └─────────────────────────────┘
+```
+
+| Step | What happens | Output |
+|---|---|---|
+| 1 | `console.log("Processing order...")` | Processing order: ORD-1001 |
+| 2 | `setTimeout(callback, 2000)` - schedules, does **not** run | - |
+| 3 | `console.log("Order processed")` - runs immediately | Order processed |
+| 4 | 2 seconds later, callback fires from the **callback queue** | Callback executed for ORD-1001 |
+
+**Key points:**
+- The outer function **returns first**; the callback fires only after the async operation completes.
+- `setTimeout`'s delay is a minimum - the callback waits in the queue until the call stack is empty.
+- Common examples: `setTimeout`, `setInterval`, event listeners (`addEventListener`), API calls (`fetch`), and **every Playwright action** (`page.click()`, `page.fill()`, `page.waitForSelector()`).
+
+---
+
+## Synchronous vs Asynchronous Callback
+
+| | Synchronous Callback | Asynchronous Callback |
+|---|---|---|
+| **When it runs** | Immediately, inside the outer function | Later, after the outer function returns |
+| **Execution order** | Predictable, top to bottom | Depends on when the async task finishes |
+| **Call stack** | Same call stack | Moves through the callback queue |
+| **Blocking?** | Yes - blocks until done | No - code continues running |
+| **Typical uses** | `forEach`, `map`, `filter`, `sort` | `setTimeout`, `fetch`, event listeners, Playwright actions |
+
+### Which one does Playwright use?
+
+Playwright is **asynchronous** - `test()` is given an `async` callback, and every action is awaited:
+
+```js
+test('login test', async ({ page }) => {
+    await page.goto('https://app.vwo.com');  // async - waits for the page
+    await page.fill('#username', 'admin');    // async - waits for the field
+    await page.click('#login');               // async - waits for the click
+});
+```
+
+Without `await`, Playwright actions return immediately and the test breaks - that's the asynchronous callback in action.
+
+---
+
 ## Callback Hell (Pyramid of Doom)
 
 **File:** `12_chapter_Callback/82_Pyramid_Of_Doom.js`
